@@ -1,25 +1,27 @@
 const express = require('express');
 const cors = require('cors');
+const admin = require("firebase-admin");
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
 const app = express();
-const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
+const port = process.env.PORT || 5000;
+const serviceAccount =JSON.parse (process.env.FIREBASE_SERVICE_ACCOUNT)
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+
 
 //connecting mongodb
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ahltbit.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-const admin = require("firebase-admin");
 
-const serviceAccount = require("./elite-care-firebase-adminsdk.json");
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
 //verify idToken
 
 async function verifyToken(req, res, next) {
@@ -94,7 +96,7 @@ async function run() {
                 const result = await usersCollection.updateOne(filter, updateDoc);
                 res.json(result);
             }
-            else{
+            else {
                 res.json({})
             }
 
